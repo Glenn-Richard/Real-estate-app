@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">RealEstateManager</string>
+    <string name="voici_la_valeur_d_un_bien">voici la valeur d\'un bien</string>
+    <string name="_0">0</string>
+    <string name="ma_super_activit_num_ro_2">activité numéro 2</string>
+    <string name="page_title">RealEstate Manager</string>
+    <string name="favorite">Favorite</string>
+    <string name="content_description_favorite">select favorite</string>
+    <string name="search">search</string>
+    <string name="content_description_search">search a real estate</string>
+    <string name="more">more</string>
+    <string name="content_description_more">more description</string>
+    <string name="category">category</string>
+    <string name="city">City</string>
+    <string name="price">Price</string>
+    <string name="add">add a new real estate </string>
+    <string name="category_popup">Category</string>
+    <string name="enter_a_city">Enter a city</string>
+    <string name="enter_a_price">Enter a price</string>
+    <string name="add_real_estate">Add</string>
+    <string name="close">close</string>
+    <string name="profile">profile</string>
+    <string name="select_a_file">Select a file</string>
+    <string name="add_file">+</string>
+    <string name="choisir_une_image">Choisir une image</string>
+    <string name="image_selected">image selected</string>
+</resources>
