@@ -24,4 +24,5 @@
     <string name="add_file">+</string>
     <string name="choisir_une_image">Choisir une image</string>
     <string name="image_selected">image selected</string>
+    <string name="image1">image1</string>
 </resources>
