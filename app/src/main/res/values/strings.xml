@@ -25,4 +25,6 @@
     <string name="choisir_une_image">Choisir une image</string>
     <string name="image_selected">image selected</string>
     <string name="image1">image1</string>
+    <string name="image2">image2</string>
+    <string name="image3">image3</string>
 </resources>

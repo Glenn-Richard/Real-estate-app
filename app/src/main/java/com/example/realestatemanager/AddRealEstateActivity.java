@@ -3,6 +3,7 @@ package com.example.realestatemanager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -18,6 +19,9 @@ public class AddRealEstateActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 36;
     ActivityAddRealEstateBinding binding;
     ImageView image1;
+    ImageView image2;
+    ImageView image3;
+    int count = 0;
     Button addImage;
 
     @Override
@@ -29,6 +33,13 @@ public class AddRealEstateActivity extends AppCompatActivity {
         AutoCompleteTextView category = binding.autocompletePopup;
         addImage = binding.uploadFileButton;
         image1 = binding.image1;
+        image1.setVisibility(View.GONE);
+
+        image2 = binding.image2;
+        image2.setVisibility(View.GONE);
+
+        image3 = binding.image3;
+        image3.setVisibility(View.GONE);
 
         addImage.setOnClickListener(view -> openGallery());
 
@@ -66,9 +77,22 @@ public class AddRealEstateActivity extends AppCompatActivity {
         super.onActivityResult(reqCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if(reqCode == PICK_IMAGE_REQUEST){
-                image1.setImageURI(data.getData());
+                if(count==0) {
+                    image1.setVisibility(View.VISIBLE);
+                    image1.setImageURI(data.getData());
+                    count++;
+                }
+                else if(count==1){
+                    image2.setVisibility(View.VISIBLE);
+                    image2.setImageURI(data.getData());
+                    count++;
+                }
+                else{
+                    image3.setVisibility(View.VISIBLE);
+                    image3.setImageURI(data.getData());
+                    addImage.setVisibility(View.GONE);
+                }
             }
         }
-
     }
 }
