@@ -1,12 +1,14 @@
 package com.example.realestatemanager.models;
 
+import android.widget.EditText;
+
 import java.util.List;
 
 public class Property {
 
     private String id;
     private String type;
-    private String name;
+    private int price;
     private String location;
     private int surface;
     private String description;
@@ -14,16 +16,19 @@ public class Property {
     private int number_of_bedrooms;
     private List<String> images;
 
-    public Property(String id, String type, String name, String location, int surface, String description, int number_of_rooms, int number_of_bedrooms, List<String> images) {
+    public Property(String id, String type, String location, int price, int surface, String description, int number_of_rooms, int number_of_bedrooms, List<String> images) {
         this.id = id;
         this.type = type;
-        this.name = name;
         this.location = location;
+        this.price = price;
         this.surface = surface;
         this.description = description;
         this.number_of_rooms = number_of_rooms;
         this.number_of_bedrooms = number_of_bedrooms;
         this.images = images;
+    }
+
+    public Property() {
     }
 
     public String getId() {
@@ -40,14 +45,6 @@ public class Property {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getLocation() {
@@ -96,5 +93,13 @@ public class Property {
 
     public void setImages(List<String> images) {
         this.images = images;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 }

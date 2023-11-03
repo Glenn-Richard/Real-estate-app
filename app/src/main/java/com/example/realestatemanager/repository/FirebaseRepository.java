@@ -14,9 +14,9 @@ public class FirebaseRepository {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference reference = db.collection("property");
-    private final MutableLiveData<List<Property>> properties = new MutableLiveData<>();
+    public final MutableLiveData<List<Property>> properties = new MutableLiveData<>();
 
-    private void setProperty(Property property){
+    public void setProperty(Property property){
         reference.document(property.getId())
                 .set(property)
                 .addOnSuccessListener(documentReference ->
@@ -24,7 +24,7 @@ public class FirebaseRepository {
                 .addOnFailureListener(e ->
                         Log.d("FIRESTORE_ERROR",e.toString()));
     }
-    private void getProperties(){
+    public void getProperties(){
         reference.get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()){

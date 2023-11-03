@@ -27,4 +27,9 @@
     <string name="image1">image1</string>
     <string name="image2">image2</string>
     <string name="image3">image3</string>
+    <string name="enter_a_room">Enter a room</string>
+    <string name="enter_surface">Enter surface</string>
+    <string name="rooms_number">Rooms number</string>
+    <string name="beds_numbers">Beds numbers</string>
+    <string name="description">Description</string>
 </resources>
