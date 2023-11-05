@@ -1,7 +1,5 @@
 package com.example.realestatemanager.models;
 
-import android.widget.EditText;
-
 import java.util.List;
 
 public class Property {
@@ -14,9 +12,9 @@ public class Property {
     private String description;
     private int number_of_rooms;
     private int number_of_bedrooms;
-    private List<String> images;
+    private List<Photo> images;
 
-    public Property(String id, String type, String location, int price, int surface, String description, int number_of_rooms, int number_of_bedrooms, List<String> images) {
+    public Property(String id, String type, String location, int price, int surface, String description, int number_of_rooms, int number_of_bedrooms, List<Photo> images) {
         this.id = id;
         this.type = type;
         this.location = location;
@@ -87,11 +85,11 @@ public class Property {
         this.number_of_bedrooms = number_of_bedrooms;
     }
 
-    public List<String> getImages() {
+    public List<Photo> getImages() {
         return images;
     }
 
-    public void setImages(List<String> images) {
+    public void setImages(List<Photo> images) {
         this.images = images;
     }
 

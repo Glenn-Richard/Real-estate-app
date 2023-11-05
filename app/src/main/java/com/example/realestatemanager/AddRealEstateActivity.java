@@ -10,15 +10,13 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.realestatemanager.databinding.ActivityAddRealEstateBinding;
+import com.example.realestatemanager.models.Photo;
 import com.example.realestatemanager.models.Property;
 import com.example.realestatemanager.viewmodel.FirebaseViewModel;
 import com.google.android.material.textfield.TextInputLayout;
@@ -30,8 +28,8 @@ public class AddRealEstateActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 36;
     private ActivityAddRealEstateBinding binding;
-    private AutoCompleteTextView category;
-    private final List<String> images = new ArrayList<>();
+    private AutoCompleteTextView category,room1,room2,room3;
+    private final List<Photo> images = new ArrayList<>();
     private ImageView image1,image2,image3;
     private EditText city,price,surface,rooms_number,beds_number,description;
     private TextInputLayout download1,download2,download3;
@@ -56,9 +54,9 @@ public class AddRealEstateActivity extends AppCompatActivity {
         beds_number = binding.bedroomsPopup;
         description = binding.descriptionPopup;
 
-        AutoCompleteTextView room1 = binding.typeImage1;
-        AutoCompleteTextView room2 = binding.typeImage2;
-        AutoCompleteTextView room3 = binding.typeImage3;
+        room1 = binding.typeImage1;
+        room2 = binding.typeImage2;
+        room3 = binding.typeImage3;
 
         download1 = binding.downloadZone1;
         download1.setVisibility(View.GONE);
@@ -88,37 +86,44 @@ public class AddRealEstateActivity extends AppCompatActivity {
         close_activity();
 
     }
-    private void visibilityController(){
-        download1.setVisibility(View.GONE);
-        download2.setVisibility(View.GONE);
-        download3.setVisibility(View.GONE);
-    }
     private void close_activity(){
         ImageView return_button = binding.activityCloser;
         return_button.setOnClickListener(view -> finish());
     }
-    private void formIsComplete(List<String> images){
+    private void formIsComplete(List<Photo> images){
         String error = "This field must be completed";
-        if(category.getText()==category.getHint()){
+        if(category.getText().toString().isEmpty()){
             category.setHint("Choose a category");
             category.setHintTextColor(Color.RED);
-        }if(city.getText().toString().isEmpty()) {
+        }else if(city.getText().toString().isEmpty()) {
             city.setHint(error);
             city.setHintTextColor(Color.RED);
-        }if(price.getText().toString().isEmpty()){
+        }else if(price.getText().toString().isEmpty()){
             price.setHint(error);
             price.setHintTextColor(Color.RED);
-        }if(surface.getText().toString().isEmpty()){
+        }else if(surface.getText().toString().isEmpty()){
             surface.setHint(error);
             surface.setHintTextColor(Color.RED);
-        }if(rooms_number.getText().toString().isEmpty()){
+        }else if(rooms_number.getText().toString().isEmpty()){
             rooms_number.setHint(error);
             rooms_number.setHintTextColor(Color.RED);
-        }if(beds_number.getText().toString().isEmpty()){
+        }else if(beds_number.getText().toString().isEmpty()){
             beds_number.setHint(error);
             beds_number.setHintTextColor(Color.RED);
+        }else if(room1.getText().toString().isEmpty()){
+            room1.setHint(error);
+            room1.setHintTextColor(Color.RED);
+        }else if(room2.getText().toString().isEmpty()){
+            room2.setHint(error);
+            room2.setHintTextColor(Color.RED);
+        }else if(room3.getText().toString().isEmpty()){
+            room3.setHint(error);
+            room3.setHintTextColor(Color.RED);
         }
         else{
+            images.get(0).setDescription(room1.getText().toString());
+            images.get(1).setDescription(room2.getText().toString());
+            images.get(2).setDescription(room3.getText().toString());
             String cat = category.getText().toString();
             String cit = city.getText().toString();
             String pri = price.getText().toString();
@@ -129,7 +134,7 @@ public class AddRealEstateActivity extends AppCompatActivity {
         }
     }
 
-    private void submitProperty(String category, String city, String price, String surface, String rooms_number, String beds_number,List<String> images) {
+    private void submitProperty(String category, String city, String price, String surface, String rooms_number, String beds_number,List<Photo> images) {
         FirebaseViewModel viewModel = new ViewModelProvider(this).get(FirebaseViewModel.class);
         viewModel.getProperties().observe(this, properties -> {
             String id = String.valueOf(properties.size());
@@ -137,7 +142,7 @@ public class AddRealEstateActivity extends AppCompatActivity {
         });
 
     }
-    private void createProperty(String id,String category,String city,String price,String surface, String rooms_number, String beds_number, List<String> images){
+    private void createProperty(String id,String category,String city,String price,String surface, String rooms_number, String beds_number, List<Photo> images){
         FirebaseViewModel viewModel = new ViewModelProvider(this).get(FirebaseViewModel.class);
         Property property = new Property(
                 id,
@@ -150,13 +155,12 @@ public class AddRealEstateActivity extends AppCompatActivity {
                 Integer.parseInt(beds_number),
                 images);
         viewModel.setProperty(property);
+        Toast.makeText(this, "Property has been created", Toast.LENGTH_SHORT).show();
+        finish();
     }
     private void listview_maker(AutoCompleteTextView autoCompleteTextView,String[] list){
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         autoCompleteTextView.setAdapter(adapter);
-        autoCompleteTextView.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedResponse = (String) parent.getItemAtPosition(position);
-        });
     }
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -172,19 +176,25 @@ public class AddRealEstateActivity extends AppCompatActivity {
                 if(count==0) {
                     download1.setVisibility(View.VISIBLE);
                     image1.setImageURI(data.getData());
-                    images.add(data.getData().toString());
+                    Photo photo = new Photo();
+                    photo.setUrl(data.getData().toString());
+                    images.add(photo);
                     count++;
                 }
                 else if(count==1){
                     download2.setVisibility(View.VISIBLE);
                     image2.setImageURI(data.getData());
-                    images.add(data.getData().toString());
+                    Photo photo = new Photo();
+                    photo.setUrl(data.getData().toString());
+                    images.add(photo);
                     count++;
                 }
                 else{
                     download3.setVisibility(View.VISIBLE);
                     image3.setImageURI(data.getData());
-                    images.add(data.getData().toString());
+                    Photo photo = new Photo();
+                    photo.setUrl(data.getData().toString());
+                    images.add(photo);
                     addImage.setVisibility(View.GONE);
                 }
             }
