@@ -1,15 +1,25 @@
 package com.example.realestatemanager;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.realestatemanager.adapter.PropertiesAdapter;
 import com.example.realestatemanager.databinding.ActivityMainBinding;
+import com.example.realestatemanager.models.Property;
+import com.example.realestatemanager.viewmodel.FirebaseViewModel;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,9 +30,26 @@ public class MainActivity extends AppCompatActivity {
         com.example.realestatemanager.databinding.ActivityMainBinding activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(activityMainBinding.getRoot());
         setSupportActionBar(findViewById(R.id.topAppBar));
+
+        initViewModel(this,activityMainBinding.getRoot());
+
     }
 
     /*------------------------------------------------TOP APP BAR MENU---------------------------------------------*/
+
+   private void initRecyclerView(Context context, View view, List<Property> properties){
+       RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
+       LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+       recyclerView.setLayoutManager(layoutManager);
+       PropertiesAdapter propertiesAdapter = new PropertiesAdapter(context);
+       recyclerView.setAdapter(propertiesAdapter);
+       propertiesAdapter.setAdapter(properties);
+
+   }
+   private void initViewModel(Context context, View view){
+       FirebaseViewModel viewModel = new ViewModelProvider(this).get(FirebaseViewModel.class);
+       viewModel.getProperties().observe(this, properties -> initRecyclerView(context,view,properties));
+   }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.top_app_bar, menu);

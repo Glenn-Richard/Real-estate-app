@@ -2,6 +2,7 @@ package com.example.realestatemanager;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -90,6 +91,10 @@ public class AddRealEstateActivity extends AppCompatActivity {
         ImageView return_button = binding.activityCloser;
         return_button.setOnClickListener(view -> finish());
     }
+    private void uploadPhoto(Uri uri){
+        FirebaseViewModel viewModel = new ViewModelProvider(this).get(FirebaseViewModel.class);
+        viewModel.uploadPhoto(uri);
+    }
     private void formIsComplete(List<Photo> images){
         String error = "This field must be completed";
         if(category.getText().toString().isEmpty()){
@@ -110,27 +115,29 @@ public class AddRealEstateActivity extends AppCompatActivity {
         }else if(beds_number.getText().toString().isEmpty()){
             beds_number.setHint(error);
             beds_number.setHintTextColor(Color.RED);
-        }else if(room1.getText().toString().isEmpty()){
-            room1.setHint(error);
-            room1.setHintTextColor(Color.RED);
-        }else if(room2.getText().toString().isEmpty()){
-            room2.setHint(error);
-            room2.setHintTextColor(Color.RED);
-        }else if(room3.getText().toString().isEmpty()){
-            room3.setHint(error);
-            room3.setHintTextColor(Color.RED);
-        }
-        else{
-            images.get(0).setDescription(room1.getText().toString());
-            images.get(1).setDescription(room2.getText().toString());
-            images.get(2).setDescription(room3.getText().toString());
-            String cat = category.getText().toString();
-            String cit = city.getText().toString();
-            String pri = price.getText().toString();
-            String sur = surface.getText().toString();
-            String roo = rooms_number.getText().toString();
-            String bed = beds_number.getText().toString();
-            submitProperty(cat,cit,pri,sur,roo,bed,images);
+        }else{
+            if(room1.getText().toString().isEmpty()){
+                room1.setHint(error);
+                room1.setHintTextColor(Color.RED);
+            }if(room2.getText().toString().isEmpty()){
+                room2.setHint(error);
+                room2.setHintTextColor(Color.RED);
+            }if(room3.getText().toString().isEmpty()){
+                room3.setHint(error);
+                room3.setHintTextColor(Color.RED);
+            }
+            else{
+                images.get(0).setDescription(room1.getText().toString());
+                images.get(1).setDescription(room2.getText().toString());
+                images.get(2).setDescription(room3.getText().toString());
+                String cat = category.getText().toString();
+                String cit = city.getText().toString();
+                String pri = price.getText().toString();
+                String sur = surface.getText().toString();
+                String roo = rooms_number.getText().toString();
+                String bed = beds_number.getText().toString();
+                submitProperty(cat,cit,pri,sur,roo,bed,images);
+            }
         }
     }
 
@@ -139,6 +146,9 @@ public class AddRealEstateActivity extends AppCompatActivity {
         viewModel.getProperties().observe(this, properties -> {
             String id = String.valueOf(properties.size());
             createProperty(id,category,city,price,surface,rooms_number,beds_number,images);
+            uploadPhoto(Uri.parse(images.get(0).getUrl()));
+            uploadPhoto(Uri.parse(images.get(1).getUrl()));
+            uploadPhoto(Uri.parse(images.get(2).getUrl()));
         });
 
     }
@@ -173,9 +183,11 @@ public class AddRealEstateActivity extends AppCompatActivity {
         super.onActivityResult(reqCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if(reqCode == PICK_IMAGE_REQUEST){
+                FirebaseViewModel viewModel = new ViewModelProvider(this).get(FirebaseViewModel.class);
                 if(count==0) {
                     download1.setVisibility(View.VISIBLE);
                     image1.setImageURI(data.getData());
+                    viewModel.uploadPhoto(data.getData());
                     Photo photo = new Photo();
                     photo.setUrl(data.getData().toString());
                     images.add(photo);
@@ -184,6 +196,7 @@ public class AddRealEstateActivity extends AppCompatActivity {
                 else if(count==1){
                     download2.setVisibility(View.VISIBLE);
                     image2.setImageURI(data.getData());
+                    viewModel.uploadPhoto(data.getData());
                     Photo photo = new Photo();
                     photo.setUrl(data.getData().toString());
                     images.add(photo);
@@ -192,6 +205,7 @@ public class AddRealEstateActivity extends AppCompatActivity {
                 else{
                     download3.setVisibility(View.VISIBLE);
                     image3.setImageURI(data.getData());
+                    viewModel.uploadPhoto(data.getData());
                     Photo photo = new Photo();
                     photo.setUrl(data.getData().toString());
                     images.add(photo);

@@ -1,5 +1,7 @@
 package com.example.realestatemanager.viewmodel;
 
+import android.net.Uri;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -18,6 +20,13 @@ public class FirebaseViewModel extends ViewModel {
     public LiveData<List<Property>> getProperties(){
         firebaseRepository.getProperties();
         return firebaseRepository.properties;
+    }
+    public void uploadPhoto(Uri uri){
+        firebaseRepository.uploadImage(uri);
+    }
+    public LiveData<Uri> getImage(Uri uri){
+        firebaseRepository.getImage(uri.getPath());
+        return firebaseRepository.photo;
     }
 }
 
