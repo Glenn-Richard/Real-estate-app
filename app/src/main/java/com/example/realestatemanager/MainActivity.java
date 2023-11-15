@@ -21,7 +21,7 @@ import com.example.realestatemanager.viewmodel.FirebaseViewModel;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnItemClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
        RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
        recyclerView.setLayoutManager(layoutManager);
-       PropertiesAdapter propertiesAdapter = new PropertiesAdapter(context);
+       PropertiesAdapter propertiesAdapter = new PropertiesAdapter(context,this);
        recyclerView.setAdapter(propertiesAdapter);
        propertiesAdapter.setAdapter(properties);
 
@@ -85,12 +85,17 @@ public class MainActivity extends AppCompatActivity {
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
+    /*----------------------------------------------------RECYCLER VIEW--------------------------------------------------------*/
 
-
-
-
-
-
+    private void launchDetailActivity(Property property) {
+        Intent intent = new Intent(this,DetailActivity.class);
+        intent.putExtra("Property",property);
+        startActivity(intent);
+    }
+    @Override
+    public void onItemClick(Property property) {
+        launchDetailActivity(property);
+    }
 //@SuppressLint("SetTextI18n")
 //    private void configureTextViewMain(){
 //        this.textViewMain.setTextSize(15);

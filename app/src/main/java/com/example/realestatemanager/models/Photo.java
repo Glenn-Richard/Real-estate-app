@@ -1,6 +1,8 @@
 package com.example.realestatemanager.models;
 
-public class Photo {
+import java.io.Serializable;
+
+public class Photo implements Serializable {
 
     private String url;
     private String description;

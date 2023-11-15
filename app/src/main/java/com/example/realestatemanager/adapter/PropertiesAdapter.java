@@ -10,12 +10,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.realestatemanager.OnItemClickListener;
 import com.example.realestatemanager.R;
 import com.example.realestatemanager.models.Property;
 import com.example.realestatemanager.viewmodel.FirebaseViewModel;
@@ -26,9 +26,11 @@ public class PropertiesAdapter extends RecyclerView.Adapter<PropertiesAdapter.Pr
 
     private final Context context;
     private List<Property> properties;
+    private final OnItemClickListener mListener;
 
-    public PropertiesAdapter(Context context) {
+    public PropertiesAdapter(Context context,OnItemClickListener mListener) {
         this.context = context;
+        this.mListener = mListener;
     }
     public void setAdapter(List<Property> properties){
         this.properties = properties;
@@ -58,6 +60,7 @@ public class PropertiesAdapter extends RecyclerView.Adapter<PropertiesAdapter.Pr
         holder.category.setText(property.getType());
         holder.city.setText(property.getLocation());
         holder.price.setText(String.valueOf(property.getPrice()));
+        holder.itemView.setOnClickListener(v -> mListener.onItemClick(property));
     }
 
     @Override
