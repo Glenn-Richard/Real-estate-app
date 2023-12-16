@@ -1,13 +1,18 @@
 package com.example.realestatemanager;
 
+import static android.service.controls.ControlsProviderService.TAG;
+
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
@@ -15,8 +20,13 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -24,19 +34,36 @@ import com.example.realestatemanager.databinding.ActivityAddRealEstateBinding;
 import com.example.realestatemanager.models.Photo;
 import com.example.realestatemanager.models.Property;
 import com.example.realestatemanager.viewmodel.FirebaseViewModel;
+import com.example.realestatemanager.viewmodel.RetrofitViewModel;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class AddRealEstateActivity extends AppCompatActivity {
+@RequiresApi(api = Build.VERSION_CODES.R)
+public class AddRealEstateActivity extends AppCompatActivity{
 
     private static final int PICK_IMAGE_REQUEST = 36;
     private ActivityAddRealEstateBinding binding;
     private AutoCompleteTextView category, room1, room2, room3;
     private final List<Photo> images = new ArrayList<>();
     private ImageView image1, image2, image3;
-    private EditText city, price, surface, rooms_number, beds_number, description;
+    private EditText price, surface, rooms_number, beds_number, bathrooms, description;
+    private TextView city;
+    private TextInputLayout city_layout;
     private TextInputLayout download1, download2, download3;
     private int count = 0;
     private Button addImage;
@@ -52,11 +79,13 @@ public class AddRealEstateActivity extends AppCompatActivity {
         Button save = binding.btnSave;
 
         category = binding.autocompletePopup;
-        city = binding.cityPopup;
+        city = binding.autocompleteCity;
+        city_layout = binding.cityPopupLayout;
         price = binding.pricePopup;
         surface = binding.surfacePopup;
         rooms_number = binding.roomsPopup;
         beds_number = binding.bedroomsPopup;
+        bathrooms = binding.bathroomsPopup;
         description = binding.descriptionPopup;
 
         clearEditText(price);
@@ -83,6 +112,7 @@ public class AddRealEstateActivity extends AppCompatActivity {
         download3.setVisibility(View.GONE);
 
         addImage = binding.uploadFileButton;
+
         image1 = binding.image1;
 
         image2 = binding.image2;
@@ -92,8 +122,14 @@ public class AddRealEstateActivity extends AppCompatActivity {
         addImage.setOnClickListener(view -> openGallery());
         save.setOnClickListener(view -> formIsComplete(images));
 
+        city.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                autocompleteLauncher();
+            }
+        });
 
-        listview_maker(category, responsesPredifinies);
+        listview_maker(category,responsesPredifinies);
         listview_maker(room1, imageType);
         listview_maker(room2, imageType);
         listview_maker(room3, imageType);
@@ -101,7 +137,6 @@ public class AddRealEstateActivity extends AppCompatActivity {
         close_activity();
 
     }
-
     private void numberFilter(EditText editText) {
         editText.setOnEditorActionListener((v, actionId, event) -> actionId == EditorInfo.IME_ACTION_DONE);
         editText.setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
@@ -113,19 +148,16 @@ public class AddRealEstateActivity extends AppCompatActivity {
             return null;
         }});
     }
-
     private void clearEditText(EditText editText) {
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {
 
             }
-
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
 
             }
-
             @Override
             public void afterTextChanged(Editable editable) {
                 if (editable.length() > 0 && (editable.length() % 4) == 0) {
@@ -152,9 +184,6 @@ public class AddRealEstateActivity extends AppCompatActivity {
         if(category.getText().toString().isEmpty()){
             category.setHint("Choose a category");
             category.setHintTextColor(Color.RED);
-        }else if(city.getText().toString().isEmpty()) {
-            city.setHint(error);
-            city.setHintTextColor(Color.RED);
         }else if(price.getText().toString().isEmpty()){
             price.setHint(error);
             price.setHintTextColor(Color.RED);
@@ -167,6 +196,9 @@ public class AddRealEstateActivity extends AppCompatActivity {
         }else if(beds_number.getText().toString().isEmpty()){
             beds_number.setHint(error);
             beds_number.setHintTextColor(Color.RED);
+        }else if(bathrooms.getText().toString().isEmpty()){
+            bathrooms.setHint(error);
+            bathrooms.setHintTextColor(Color.RED);
         }else if(images.isEmpty()){
             Toast.makeText(this, "Select at least one image", Toast.LENGTH_SHORT).show();
         }else if(images.size()==1){
@@ -210,26 +242,27 @@ public class AddRealEstateActivity extends AppCompatActivity {
             }
         }else{
             String cat = category.getText().toString();
-            String cit = city.getText().toString();
+            String cit = "city";
             String pri = price.getText().toString();
             String sur = surface.getText().toString();
             String roo = rooms_number.getText().toString();
             String bed = beds_number.getText().toString();
-            submitProperty(cat,cit,pri,sur,roo,bed,images);
+            String bath = bathrooms.getText().toString();
+            submitProperty(cat,cit,pri,sur,roo,bed,bath,images);
         }
     }
 
-    private void submitProperty(String category, String city, String price, String surface, String rooms_number, String beds_number,List<Photo> images) {
+    private void submitProperty(String category, String city, String price, String surface, String rooms_number, String beds_number,String bathrooms, List<Photo> images) {
         initViewModel().getProperties().observe(this, properties -> {
             String id = String.valueOf(properties.size());
-            createProperty(id,category,city,price,surface,rooms_number,beds_number,images);
+            createProperty(id,category,city,price,surface,rooms_number,beds_number,bathrooms,images);
             uploadPhoto(Uri.parse(images.get(0).getUrl()));
             uploadPhoto(Uri.parse(images.get(1).getUrl()));
             uploadPhoto(Uri.parse(images.get(2).getUrl()));
         });
 
     }
-    private void createProperty(String id,String category,String city,String price,String surface, String rooms_number, String beds_number, List<Photo> images){
+    private void createProperty(String id,String category,String city,String price,String surface, String rooms_number, String beds_number, String bathrooms, List<Photo> images){
         Property property = new Property(
                 id,
                 category,
@@ -239,6 +272,7 @@ public class AddRealEstateActivity extends AppCompatActivity {
                 description.getText().toString(),
                 Integer.parseInt(rooms_number),
                 Integer.parseInt(beds_number),
+                Integer.parseInt(bathrooms),
                 images);
         initViewModel().setProperty(property);
         Toast.makeText(this, "Property has been created", Toast.LENGTH_SHORT).show();
@@ -248,12 +282,40 @@ public class AddRealEstateActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         autoCompleteTextView.setAdapter(adapter);
     }
+    private void placeInitializer(String query){
+        RetrofitViewModel viewModel = new ViewModelProvider(this).get(RetrofitViewModel.class);
+        viewModel.initializePlaces(this,0,0,query);
+    }
+    private void autocompleteLauncher(){
+        if (!Places.isInitialized()){
+            Places.initialize(this,"AIzaSyBhBe93XEn4olaUwiB8X_o1kWvmX4mwOG4");
+        }
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
+
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                .build(this);
+        startAutocomplete.launch(intent);
+    }
+    private final ActivityResultLauncher<Intent> startAutocomplete = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent intent = result.getData();
+                    if (intent != null) {
+                        Place place = Autocomplete.getPlaceFromIntent(intent);
+                        placeInitializer(place.getAddress());
+                        city.setText(place.getAddress());
+                        Log.i(TAG, "Place: ${place.getName()}, ${place.getId()}");
+                    }
+                } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                    Log.i(TAG, "User canceled autocomplete");
+                }
+            });
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
-
     @Override
     protected void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
@@ -287,3 +349,10 @@ public class AddRealEstateActivity extends AppCompatActivity {
         }
     }
 }
+
+/*List<PlacesResponse.Prediction> predictions = placesResponse.getPredictions();
+                        for (PlacesResponse.Prediction prediction : predictions) {
+                            String address = prediction.getDescription();
+                            String placeId = prediction.getPlaceId();
+                            // Faites quelque chose avec l'adresse et l'ID de l'endroit
+                        }*/

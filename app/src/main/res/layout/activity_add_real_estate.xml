@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/popup_container">
@@ -26,6 +27,7 @@
                 android:id="@+id/category_popup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="16dp"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:hint="@string/category"
                 >
@@ -40,27 +42,31 @@
                 android:id="@+id/city_popup_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="16dp"
                 android:hint="@string/enter_a_city"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
                 <EditText
-                    android:id="@+id/city_popup"
+                    android:id="@+id/autocomplete_city"
+                    android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:importantForAutofill="no"
-                    android:inputType="textAutoCorrect"
+                    android:layout_height="50dp"
+                    android:autofillHints="name"
+                    android:labelFor="@id/city_popup_layout"
                     tools:ignore="LabelFor" />
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/price_popup_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="16dp"
                 android:hint="@string/enter_a_price"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <EditText
                     android:id="@+id/price_popup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:importantForAutofill="no"
+                    android:hint="@string/enter_a_city"
                     android:inputType="textAutoCorrect"
                     tools:ignore="LabelFor" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -68,6 +74,7 @@
                 android:id="@+id/surface_popup_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="16dp"
                 android:hint="@string/enter_surface"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <EditText
@@ -82,6 +89,7 @@
                 android:id="@+id/rooms_popup_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="16dp"
                 android:hint="@string/rooms_number"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <EditText
@@ -96,6 +104,7 @@
                 android:id="@+id/bedrooms_popup_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="16dp"
                 android:hint="@string/beds_numbers"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <EditText
@@ -107,9 +116,25 @@
                     tools:ignore="LabelFor" />
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/bathrooms_popup_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:hint="@string/bathrooms_numbers"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <EditText
+                    android:id="@+id/bathrooms_popup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:importantForAutofill="no"
+                    android:inputType="textAutoCorrect"
+                    tools:ignore="LabelFor" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/description_popup_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="16dp"
                 android:hint="@string/description"
                 android:gravity="top"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">

@@ -33,4 +33,11 @@
     <string name="beds_numbers">Beds numbers</string>
     <string name="description">Description</string>
     <string name="todo">TODO</string>
+    <string name="description_title">Description</string>
+    <string name="surface">Surface</string>
+    <string name="number_of_rooms">Number of rooms</string>
+    <string name="number_of_bathrooms">Number of bathrooms</string>
+    <string name="number_of_bed">Number of bed</string>
+    <string name="bathrooms_numbers">Bathrooms numbers</string>
+    <string name="enter_your_address">Enter your address</string>
 </resources>

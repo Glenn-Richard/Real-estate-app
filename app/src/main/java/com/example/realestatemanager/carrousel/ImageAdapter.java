@@ -11,15 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.realestatemanager.R;
-
-import java.util.ArrayList;
+import com.example.realestatemanager.models.Photo;
+import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
     Context context;
-    ArrayList<String> arrayList;
-    OnItemClickListener onItemClickListener;
+    List<Photo> arrayList;
 
-    public ImageAdapter(Context context, ArrayList<String> arrayList) {
+    public ImageAdapter(Context context, List<Photo> arrayList) {
         this.context = context;
         this.arrayList = arrayList;
     }
@@ -33,8 +32,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Glide.with(context).load(arrayList.get(position)).into(holder.imageView);
-        holder.itemView.setOnClickListener(view -> onItemClickListener.onClick(holder.imageView, arrayList.get(position)));
+        Glide.with(context)
+                .load(arrayList.get(position))
+                .fitCenter()
+                .into(holder.imageView);
     }
 
     @Override
@@ -48,13 +49,5 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             super(itemView);
             imageView = itemView.findViewById(R.id.list_item_image);
         }
-    }
-
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
-    }
-
-    public interface OnItemClickListener {
-        void onClick(ImageView imageView, String path);
     }
 }

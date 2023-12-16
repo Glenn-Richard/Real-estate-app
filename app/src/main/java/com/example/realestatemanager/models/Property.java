@@ -13,9 +13,10 @@ public class Property implements Serializable {
     private String description;
     private int number_of_rooms;
     private int number_of_bedrooms;
+    private int number_of_bathrooms;
     private List<Photo> images;
 
-    public Property(String id, String type, String location, int price, int surface, String description, int number_of_rooms, int number_of_bedrooms, List<Photo> images) {
+    public Property(String id, String type, String location, int price, int surface, String description, int number_of_rooms, int number_of_bedrooms, int number_of_bathrooms, List<Photo> images) {
         this.id = id;
         this.type = type;
         this.location = location;
@@ -24,6 +25,7 @@ public class Property implements Serializable {
         this.description = description;
         this.number_of_rooms = number_of_rooms;
         this.number_of_bedrooms = number_of_bedrooms;
+        this.number_of_bathrooms = number_of_bathrooms;
         this.images = images;
     }
 
@@ -84,6 +86,14 @@ public class Property implements Serializable {
 
     public void setNumber_of_bedrooms(int number_of_bedrooms) {
         this.number_of_bedrooms = number_of_bedrooms;
+    }
+
+    public int getNumber_of_bathrooms() {
+        return number_of_bathrooms;
+    }
+
+    public void setNumber_of_bathrooms(int number_of_bathrooms) {
+        this.number_of_bathrooms = number_of_bathrooms;
     }
 
     public List<Photo> getImages() {
