@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="imageViewPropertyPhoto" type="id"/>
+    <item name="soldeOutImage" type="id"/>
+    <item name="textViewTitle" type="id"/>
+    <item name="textViewAddress" type="id"/>
+    <item name="textViewPrice" type="id"/>
+    <item name="iv_logo" type="id"/>
+</resources>

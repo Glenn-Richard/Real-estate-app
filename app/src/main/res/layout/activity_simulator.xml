@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#E1D5F6"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextLoanAmount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/loan_amount"
+        android:padding="15dp"
+        android:inputType="numberDecimal"
+        android:background="@drawable/edittext_rounded"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:importantForAutofill="no" />
+
+    <EditText
+        android:id="@+id/editTextInterestRate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:hint="@string/interest_rate"
+        android:inputType="numberDecimal"
+        android:background="@drawable/edittext_rounded"
+        android:layout_marginBottom="15dp"
+        android:importantForAutofill="no" />
+
+    <EditText
+        android:id="@+id/editTextLoanTerm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:hint="@string/loan_term_years"
+        android:inputType="number"
+        android:background="@drawable/edittext_rounded"
+        android:layout_marginBottom="15dp"
+        android:importantForAutofill="no" />
+
+    <EditText
+        android:id="@+id/editTextDownPayment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/down_payment"
+        android:inputType="numberDecimal"
+        android:padding="15dp"
+        android:background="@drawable/edittext_rounded"
+        android:layout_marginBottom="15dp"
+        android:importantForAutofill="no" />
+
+
+    <TextView
+        android:id="@+id/textViewMonthlyPayment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_margin="20dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:textColor="#070707" />
+
+    <Button
+        android:id="@+id/buttonCalculate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:background="@drawable/button_rounded"
+        android:text="@string/calculate"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>
