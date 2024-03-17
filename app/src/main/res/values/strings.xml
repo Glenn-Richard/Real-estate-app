@@ -24,7 +24,7 @@
     <string name="add_file">+</string>
     <string name="choisir_une_image">Choisir une image</string>
     <string name="image_selected">image selected</string>
-    <string name="image1">image1</string>
+    <string name="image1">image!</string>
     <string name="image2">image2</string>
     <string name="image3">image3</string>
     <string name="enter_a_room">Enter a room</string>
@@ -40,4 +40,102 @@
     <string name="number_of_bed">Number of bed</string>
     <string name="bathrooms_numbers">Bathrooms numbers</string>
     <string name="enter_your_address">Enter your address</string>
+    <string name="school">School</string>
+    <string name="shopping">Shopping</string>
+    <string name="transport">Transport</string>
+    <string name="swimming_pool">Swimming pool</string>
+    <string name="properties">Properties :</string>
+    <string name="property_name">Property name :</string>
+    <string name="property_price">Property Price :</string>
+    <string name="property_surface">Property Surface :</string>
+    <string name="property_address">Property Address :</string>
+    <string name="agent">Agent</string>
+    <string name="rooms">Rooms</string>
+    <string name="bedrooms">Bedrooms</string>
+    <string name="bathrooms">Bathrooms</string>
+    <string name="points_of_interest">Points of Interest :</string>
+    <string name="status">Status</string>
+    <string name="start_date">Start date</string>
+    <string name="sold_date">Sold Date</string>
+    <string name="description_">Description :</string>
+    <string name="Upper_description">Description</string>
+    <string name="add_picture">Add Picture</string>
+    <string name="save">SAVE</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="Api_key">AIzaSyByHmbyuuAfqa-qU3zpO5erVNhcynyx4XY</string>
+    <string name="monthly_payment_result">Montant du paiement mensuel: %1$.2f</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="type">Type</string>
+    <string name="monthly_payment">Paiement mensuel : %1$s</string>
+    <string name="input_error">Please enter valid numbers in all fields.</string>
+
+    <string-array name="real_estate_agents">
+        <item>Smith</item>
+        <item>Johnson</item>
+        <item>Brown</item>
+        <item>Davis</item>
+        <item>Wilson</item>
+    </string-array>
+
+    <string-array name="property_types">
+        <item>Penthouse</item>
+        <item>Villa</item>
+        <item>Manor</item>
+        <item>Luxury Apartment</item>
+        <item>Castle</item>
+    </string-array>
+
+    <string name="property_type">Property Type</string>
+    <string name="add_property">Add Property</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="choose_from_gallery">Choose from Gallery</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_photo">Add Photo</string>
+    <string name="error_fields">Please fill in all required fields.</string>
+    <string name="successfully">Property was added successfully.</string>
+    <string name="add_message">Veuillez ajouter des propriétés</string>
+    <string name="error_fields_photos_required">Please fill in all required fields.</string>
+    <string name="successfully_added_property">Property was added successfully.</string>
+    <string name="successfully_deleted_property">Property deleted successfully.</string>
+    <string name="on_sale">On Sale</string>
+    <string name="sold">Sold</string>
+    <string name="error_selection">No property selected</string>
+    <string name="error_delete">Error: No property to delete</string>
+    <string name="check_error">Please check your input</string>
+    <string name="geocoder_error">Geocoder failed</string>
+    <string name="error_address">Address not found</string>
+    <string name="format_date_error">Invalid date format for Sold Date</string>
+    <string name="_property">Property updated successfully</string>
+    <string name="update_property">Property updated successfully</string>
+    <string name="map_description">map_description</string>
+    <string name="address">Address :</string>
+    <string name="on_sale_since">On Sale since :</string>
+    <string name="sold_on">Sold On:</string>
+    <string name="property_photo">property_photo</string>
+    <string name="title">Title</string>
+    <string name="min_surface">Min Surface</string>
+    <string name="max_surface">Max Surface</string>
+    <string name="price_filter">Price Filter</string>
+    <string name="min_price">Min Price ($)</string>
+    <string name="max_price">Max Price ($)</string>
+    <string name="room_filter">Room Filter</string>
+    <string name="min_rooms">Min Rooms</string>
+    <string name="max_rooms">Max Rooms</string>
+    <string name="date_range_filter">Date Range Filter</string>
+    <string name="end_date">End Date</string>
+    <string name="search_results">Search Results</string>
+    <string name="logo">logo</string>
+    <string name="list">List</string>
+    <string name="map">Map</string>
+    <string name="loan_simulator">Loan Simulator</string>
+    <string name="market_date">Market Date</string>
+    <string name="delete_property">Delete Property</string>
+    <string name="calculate">Calculate</string>
+    <string name="down_payment">Down Payment</string>
+    <string name="loan_term_years">Loan Term (years)</string>
+    <string name="interest_rate">Interest Rate (%)</string>
+    <string name="loan_amount">Loan Amount</string>
+
+
 </resources>

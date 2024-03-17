@@ -11,16 +11,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.realestatemanager.R;
-import com.example.realestatemanager.models.Photo;
+
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
-    Context context;
-    List<Photo> arrayList;
+    private final Context context;
+    private List<String> imageList;
 
-    public ImageAdapter(Context context, List<Photo> arrayList) {
+    public ImageAdapter(Context context, List<String> imageList) {
         this.context = context;
-        this.arrayList = arrayList;
+        this.imageList = imageList;
     }
 
     @NonNull
@@ -33,14 +33,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Glide.with(context)
-                .load(arrayList.get(position))
+                .load(imageList.get(position))
                 .fitCenter()
                 .into(holder.imageView);
     }
 
     @Override
     public int getItemCount() {
-        return arrayList.size();
+        return imageList.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -49,5 +49,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             super(itemView);
             imageView = itemView.findViewById(R.id.list_item_image);
         }
+    }
+    public List<String> getImages() {
+        return imageList;
     }
 }

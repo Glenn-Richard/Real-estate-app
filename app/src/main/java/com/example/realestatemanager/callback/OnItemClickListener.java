@@ -1,4 +1,4 @@
-package com.example.realestatemanager;
+package com.example.realestatemanager.callback;
 
 import com.example.realestatemanager.models.Property;
 
