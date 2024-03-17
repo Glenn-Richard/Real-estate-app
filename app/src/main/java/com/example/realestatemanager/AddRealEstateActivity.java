@@ -1,358 +1,318 @@
 package com.example.realestatemanager;
 
-import static android.service.controls.ControlsProviderService.TAG;
-
-import android.app.Activity;
+import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.graphics.Color;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.util.Log;
-import android.view.View;
-import android.view.inputmethod.EditorInfo;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.realestatemanager.carrousel.ImageAdapter;
 import com.example.realestatemanager.databinding.ActivityAddRealEstateBinding;
+import com.example.realestatemanager.models.AddressLoc;
 import com.example.realestatemanager.models.Photo;
 import com.example.realestatemanager.models.Property;
-import com.example.realestatemanager.viewmodel.FirebaseViewModel;
-import com.example.realestatemanager.viewmodel.RetrofitViewModel;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
-import com.google.android.material.textfield.TextInputLayout;
+import com.example.realestatemanager.viewmodel.RoomViewModel;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @RequiresApi(api = Build.VERSION_CODES.R)
 public class AddRealEstateActivity extends AppCompatActivity{
 
-    private static final int PICK_IMAGE_REQUEST = 36;
+    private final String TAG = AddRealEstateActivity.class.getName();
     private ActivityAddRealEstateBinding binding;
-    private AutoCompleteTextView category, room1, room2, room3;
-    private final List<Photo> images = new ArrayList<>();
-    private ImageView image1, image2, image3;
-    private EditText price, surface, rooms_number, beds_number, bathrooms, description;
-    private TextView city;
-    private TextInputLayout city_layout;
-    private TextInputLayout download1, download2, download3;
-    private int count = 0;
-    private Button addImage;
-    private final String[] responsesPredifinies = {"House", "Loft", "Building", "Apartment"};
-    private final String[] imageType = {"Facade", "Kitchen", "Bathroom", "Lounge", "Bedroom", "Garage"};
+    private static final int REQUEST_PICK_IMAGE = 2;
+    private final List<String> imageList = new ArrayList<>();
+    private ImageAdapter imageAdapter;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private RoomViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(RoomViewModel.class);
+        initView();
+        initToolBar();
+        setupListeners();
+        initAgentList();
+        setupStatusDropdown();
+        setupDatePickers();
+    }
+
+    private void setupStatusDropdown() {
+        String[] statuses = {getString(R.string.on_sale), getString(R.string.sold)};
+        ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(this, R.layout.dropdown_menu_popup_item, statuses);
+        binding.statusAutoCompleteTextView.setAdapter(statusAdapter);
+    }
+
+    private void setupDatePickers() {
+        binding.marketDateButton.setOnClickListener(view -> showDatePickerDialog(true));
+        binding.soldDateButton.setOnClickListener(view -> showDatePickerDialog(false));
+    }
+
+    private void showDatePickerDialog(boolean isMarketDate) {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (datePicker, selectedYear, selectedMonth, selectedDay) -> {
+                    // Format de la date: AAAA-MM-JJ
+                    String selectedDate = selectedYear + "-" + (selectedMonth + 1) + "-" + selectedDay;
+                    if (isMarketDate) {
+                        binding.marketDateButton.setText(selectedDate);
+                    } else {
+                        binding.soldDateButton.setText(selectedDate);
+                    }
+                }, year, month, dayOfMonth);
+        datePickerDialog.show();
+    }
+
+    private void initView() {
         binding = ActivityAddRealEstateBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        Button save = binding.btnSave;
-
-        category = binding.autocompletePopup;
-        city = binding.autocompleteCity;
-        city_layout = binding.cityPopupLayout;
-        price = binding.pricePopup;
-        surface = binding.surfacePopup;
-        rooms_number = binding.roomsPopup;
-        beds_number = binding.bedroomsPopup;
-        bathrooms = binding.bathroomsPopup;
-        description = binding.descriptionPopup;
-
-        clearEditText(price);
-        clearEditText(surface);
-        clearEditText(rooms_number);
-        clearEditText(beds_number);
-
-        numberFilter(price);
-        numberFilter(surface);
-        numberFilter(rooms_number);
-        numberFilter(beds_number);
-
-        room1 = binding.typeImage1;
-        room2 = binding.typeImage2;
-        room3 = binding.typeImage3;
-
-        download1 = binding.downloadZone1;
-        download1.setVisibility(View.GONE);
-
-        download2 = binding.downloadZone2;
-        download2.setVisibility(View.GONE);
-
-        download3 = binding.downloadZone3;
-        download3.setVisibility(View.GONE);
-
-        addImage = binding.uploadFileButton;
-
-        image1 = binding.image1;
-
-        image2 = binding.image2;
-
-        image3 = binding.image3;
-
-        addImage.setOnClickListener(view -> openGallery());
-        save.setOnClickListener(view -> formIsComplete(images));
-
-        city.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                autocompleteLauncher();
-            }
-        });
-
-        listview_maker(category,responsesPredifinies);
-        listview_maker(room1, imageType);
-        listview_maker(room2, imageType);
-        listview_maker(room3, imageType);
-
-        close_activity();
-
     }
-    private void numberFilter(EditText editText) {
-        editText.setOnEditorActionListener((v, actionId, event) -> actionId == EditorInfo.IME_ACTION_DONE);
-        editText.setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
-            for (int i = start; i < end; i++) {
-                if (!Character.isDigit(source.charAt(i))) {
-                    return "";
-                }
-            }
-            return null;
-        }});
-    }
-    private void clearEditText(EditText editText) {
-        editText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {
 
-            }
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-
-            }
-            @Override
-            public void afterTextChanged(Editable editable) {
-                if (editable.length() > 0 && (editable.length() % 4) == 0) {
-                    char lastChar = editable.charAt(editable.length() - 1);
-                    if (Character.isDigit(lastChar)) {
-                        editable.insert(editable.length() - 1, " ");
-                    }
-                }
-            }
-        });
-    }
-    private FirebaseViewModel initViewModel(){
-        return new ViewModelProvider(this).get(FirebaseViewModel.class);
-    }
-    private void close_activity(){
-        ImageView return_button = binding.activityCloser;
-        return_button.setOnClickListener(view -> finish());
-    }
-    private void uploadPhoto(Uri uri){
-        initViewModel().uploadPhoto(uri);
-    }
-    private void formIsComplete(List<Photo> images){
-        String error = "This field must be completed";
-        if(category.getText().toString().isEmpty()){
-            category.setHint("Choose a category");
-            category.setHintTextColor(Color.RED);
-        }else if(price.getText().toString().isEmpty()){
-            price.setHint(error);
-            price.setHintTextColor(Color.RED);
-        }else if(surface.getText().toString().isEmpty()){
-            surface.setHint(error);
-            surface.setHintTextColor(Color.RED);
-        }else if(rooms_number.getText().toString().isEmpty()){
-            rooms_number.setHint(error);
-            rooms_number.setHintTextColor(Color.RED);
-        }else if(beds_number.getText().toString().isEmpty()){
-            beds_number.setHint(error);
-            beds_number.setHintTextColor(Color.RED);
-        }else if(bathrooms.getText().toString().isEmpty()){
-            bathrooms.setHint(error);
-            bathrooms.setHintTextColor(Color.RED);
-        }else if(images.isEmpty()){
-            Toast.makeText(this, "Select at least one image", Toast.LENGTH_SHORT).show();
-        }else if(images.size()==1){
-            if(room1.getText().toString().isEmpty()){
-                room1.setHint(error);
-                room1.setHintTextColor(Color.RED);
-            }else{
-                images.get(0).setDescription(room1.getText().toString());
-                initViewModel().uploadPhoto(Uri.parse(images.get(0).getUrl()));
-            }
-        }else if(images.size()==2){
-            if(room1.getText().toString().isEmpty()){
-                room1.setHint(error);
-                room1.setHintTextColor(Color.RED);
-            }else if(room2.getText().toString().isEmpty()){
-                room2.setHint(error);
-                room2.setHintTextColor(Color.RED);
-            }else{
-                images.get(0).setDescription(room1.getText().toString());
-                images.get(1).setDescription(room2.getText().toString());
-                initViewModel().uploadPhoto(Uri.parse(images.get(0).getUrl()));
-                initViewModel().uploadPhoto(Uri.parse(images.get(1).getUrl()));
-            }
-        }else if(images.size()==3){
-            if(room1.getText().toString().isEmpty()){
-                room1.setHint(error);
-                room1.setHintTextColor(Color.RED);
-            }else if(room2.getText().toString().isEmpty()){
-                room2.setHint(error);
-                room2.setHintTextColor(Color.RED);
-            }else if(room3.getText().toString().isEmpty()){
-                room3.setHint(error);
-                room3.setHintTextColor(Color.RED);
-            }else{
-                images.get(0).setDescription(room1.getText().toString());
-                images.get(1).setDescription(room2.getText().toString());
-                images.get(2).setDescription(room3.getText().toString());
-                initViewModel().uploadPhoto(Uri.parse(images.get(0).getUrl()));
-                initViewModel().uploadPhoto(Uri.parse(images.get(1).getUrl()));
-                initViewModel().uploadPhoto(Uri.parse(images.get(2).getUrl()));
-            }
-        }else{
-            String cat = category.getText().toString();
-            String cit = "city";
-            String pri = price.getText().toString();
-            String sur = surface.getText().toString();
-            String roo = rooms_number.getText().toString();
-            String bed = beds_number.getText().toString();
-            String bath = bathrooms.getText().toString();
-            submitProperty(cat,cit,pri,sur,roo,bed,bath,images);
+    private void initToolBar() {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setTitle(getString(R.string.add_property));
         }
     }
 
-    private void submitProperty(String category, String city, String price, String surface, String rooms_number, String beds_number,String bathrooms, List<Photo> images) {
-        initViewModel().getProperties().observe(this, properties -> {
-            String id = String.valueOf(properties.size());
-            createProperty(id,category,city,price,surface,rooms_number,beds_number,bathrooms,images);
-            uploadPhoto(Uri.parse(images.get(0).getUrl()));
-            uploadPhoto(Uri.parse(images.get(1).getUrl()));
-            uploadPhoto(Uri.parse(images.get(2).getUrl()));
+    private void setupListeners() {
+        binding.editPrice.addTextChangedListener(new TextWatcher() {
+            private boolean isUpdating = false;
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!isUpdating) {
+                    isUpdating = true;
+                    String str = s.toString();
+                    if (!str.startsWith("$")) {
+                        str = "$" + str;
+                        binding.editPrice.setText(str);
+                        binding.editPrice.setSelection(str.length());
+                    }
+                    isUpdating = false;
+                }
+            }
         });
 
+        binding.buttonPicture.setOnClickListener(v -> showPictureDialog());
+        binding.addButton.setOnClickListener(v -> submitProperty());
     }
-    private void createProperty(String id,String category,String city,String price,String surface, String rooms_number, String beds_number, String bathrooms, List<Photo> images){
-        Property property = new Property(
-                id,
-                category,
-                city,
-                Integer.parseInt(price),
-                Integer.parseInt(surface),
-                description.getText().toString(),
-                Integer.parseInt(rooms_number),
-                Integer.parseInt(beds_number),
-                Integer.parseInt(bathrooms),
-                images);
-        initViewModel().setProperty(property);
-        Toast.makeText(this, "Property has been created", Toast.LENGTH_SHORT).show();
-        finish();
-    }
-    private void listview_maker(AutoCompleteTextView autoCompleteTextView,String[] list){
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
-        autoCompleteTextView.setAdapter(adapter);
-    }
-    private void placeInitializer(String query){
-        RetrofitViewModel viewModel = new ViewModelProvider(this).get(RetrofitViewModel.class);
-        viewModel.initializePlaces(this,0,0,query);
-    }
-    private void autocompleteLauncher(){
-        if (!Places.isInitialized()){
-            Places.initialize(this,"AIzaSyBhBe93XEn4olaUwiB8X_o1kWvmX4mwOG4");
-        }
-        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
 
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
-                .build(this);
-        startAutocomplete.launch(intent);
+    private void initAgentList() {
+        AutoCompleteTextView agentAutoCompleteTextView = findViewById(R.id.edit_agent);
+        String[] agents = getResources().getStringArray(R.array.real_estate_agents);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu_popup_item, agents);
+        agentAutoCompleteTextView.setAdapter(adapter);
     }
-    private final ActivityResultLauncher<Intent> startAutocomplete = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    Intent intent = result.getData();
-                    if (intent != null) {
-                        Place place = Autocomplete.getPlaceFromIntent(intent);
-                        placeInitializer(place.getAddress());
-                        city.setText(place.getAddress());
-                        Log.i(TAG, "Place: ${place.getName()}, ${place.getId()}");
-                    }
-                } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
-                    Log.i(TAG, "User canceled autocomplete");
-                }
-            });
-    private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+
+    private void showPictureDialog() {
+        CharSequence[] items = {getString(R.string.take_photo), getString(R.string.choose_from_gallery), getString(R.string.cancel)};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.add_photo));
+
+        builder.setItems(items, (dialog, item) -> {
+            if (items[item].equals(getString(R.string.take_photo))) {
+                dispatchTakePictureIntent();
+            } else if (items[item].equals(getString(R.string.choose_from_gallery))) {
+                choosePhotoFromGallery();
+            } else if (items[item].equals(getString(R.string.cancel))) {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
     }
+
     @Override
-    protected void onActivityResult(int reqCode, int resultCode, Intent data) {
-        super.onActivityResult(reqCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            if(reqCode == PICK_IMAGE_REQUEST){
-                if(count==0) {
-                    download1.setVisibility(View.VISIBLE);
-                    image1.setImageURI(data.getData());
-                    Photo photo = new Photo();
-                    photo.setUrl(data.getData().toString());
-                    images.add(photo);
-                    count++;
-                }
-                else if(count==1){
-                    download2.setVisibility(View.VISIBLE);
-                    image2.setImageURI(data.getData());
-                    Photo photo = new Photo();
-                    photo.setUrl(data.getData().toString());
-                    images.add(photo);
-                    count++;
-                }
-                else{
-                    download3.setVisibility(View.VISIBLE);
-                    image3.setImageURI(data.getData());
-                    Photo photo = new Photo();
-                    photo.setUrl(data.getData().toString());
-                    images.add(photo);
-                    addImage.setVisibility(View.GONE);
-                }
-            }
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
     }
-}
 
-/*List<PlacesResponse.Prediction> predictions = placesResponse.getPredictions();
-                        for (PlacesResponse.Prediction prediction : predictions) {
-                            String address = prediction.getDescription();
-                            String placeId = prediction.getPlaceId();
-                            // Faites quelque chose avec l'adresse et l'ID de l'endroit
-                        }*/
+    private void choosePhotoFromGallery() {
+        Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickPhotoIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(pickPhotoIntent, REQUEST_PICK_IMAGE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                Bundle extras = data.getExtras();
+                if (extras != null) {
+                    Bitmap bitmap = (Bitmap) extras.get("data");
+                    if (bitmap != null) {
+                        addImageToList(data);
+                    }
+                }
+            } else if (requestCode == REQUEST_PICK_IMAGE) {
+                if (data.getClipData() != null) {
+                    int count = data.getClipData().getItemCount();
+                    for (int i = 0; i < count; i++) {
+                        Uri imageUri = data.getClipData().getItemAt(i).getUri();
+                        try {
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                            addImageToList(data);
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error processing gallery image", e);
+                        }
+                    }
+                } else if (data.getData() != null) {
+
+                    Uri imageUri = data.getData();
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                        addImageToList(data);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error processing gallery image", e);
+                    }
+                }
+            }
+            updateRecyclerView();
+        }
+    }
+
+    private void addImageToList(Intent data) {
+        imageList.add(String.valueOf(data.getData()));
+    }
+
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void updateRecyclerView() {
+        if (imageAdapter == null) {
+            imageAdapter = new ImageAdapter(this, imageList);
+            binding.photosRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            binding.photosRecyclerView.setAdapter(imageAdapter);
+        } else {
+            imageAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void submitProperty() {
+        String title = Objects.requireNonNull(binding.editTitle.getText()).toString();
+        String price = Objects.requireNonNull(binding.editPrice.getText()).toString().replaceAll("[$]", "");
+        String surface = Objects.requireNonNull(binding.editSurface.getText()).toString();
+        String address = Objects.requireNonNull(binding.editAddress.getText()).toString();
+        String rooms = Objects.requireNonNull(binding.roomsInput.getText()).toString();
+        String bedrooms = Objects.requireNonNull(binding.bedroomsInput.getText()).toString();
+        String bathrooms = Objects.requireNonNull(binding.bathroomsInput.getText()).toString();
+        String description = binding.descriptionInput.getText().toString();
+        String agent = binding.editAgent.getText().toString();
+        String status = binding.statusAutoCompleteTextView.getText().toString();
+        String marketDateStr = binding.marketDateButton.getText().toString();
+        String soldDateStr = binding.soldDateButton.getText().toString();
+        Date marketDate = Utils.convertStringToDate(marketDateStr);
+        Date soldDate = Utils.convertStringToDate(soldDateStr);
+
+        if (validateInput(title, price, surface, address, rooms, bedrooms, bathrooms, description, agent, status, marketDateStr, soldDateStr) || imageList.isEmpty()) {
+            Toast.makeText(this, getString(R.string.error_fields), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AddressLoc addressLoc = new AddressLoc();
+        addressLoc.setAddressLabel(address);
+        addressLoc.setLatLng(Utils.
+                getLocationFromAddress(this, address));
+
+        Property property = new Property();
+        property.setTitle(title);
+        property.setPrice(price);
+        property.setSurface(surface);
+        property.setAddressLoc(addressLoc);
+        property.setRooms(rooms);
+        property.setBedrooms(bedrooms);
+        property.setBathrooms(bathrooms);
+        property.setDescription(description);
+        property.setAgent(agent);
+        property.setStatus(status);
+        property.setMarketDate(marketDate);
+        property.setSoldDate(soldDate);
+        property.setPointsOfInterest(getPoi());
+        if (imageAdapter != null) {
+            property.setImageUrls(imageAdapter.getImages());
+        }
+
+        viewModel.insertProperty(property);
+            Log.d(TAG, "RealEstate is created: " + property.getId());
+            Utils.displayNotification(AddRealEstateActivity.this, getString(R.string.successfully_added_property));
+            finish();
+    }
+
+    private List<String> getPoi() {
+        List<String> pois = new ArrayList<>();
+        if (binding.schoolCheckbox.isChecked()) {
+            pois.add(getString(R.string.school));
+        }
+        if (binding.shoppingCheckbox.isChecked()) {
+            pois.add(getString(R.string.shopping));
+        }
+        if (binding.transportCheckbox.isChecked()) {
+            pois.add(getString(R.string.transport));
+        }
+        if (binding.poolCheckbox.isChecked()) {
+            pois.add(getString(R.string.swimming_pool));
+        }
+        return pois;
+    }
+
+    private boolean validateInput(String title, String price, String surface, String address, String rooms, String bedrooms, String bathrooms, String description, String agent, String status, String marketDateStr, String soldDateStr) {
+        if (title.isEmpty() || price.isEmpty() || surface.isEmpty() || address.isEmpty() || rooms.isEmpty() || bedrooms.isEmpty() || bathrooms.isEmpty() || description.isEmpty() || agent.isEmpty() || marketDateStr.isEmpty()) {
+            return true;
+        }
+        return "Sold".equals(status) && soldDateStr.isEmpty();// Passed all validations
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+}
