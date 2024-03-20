@@ -4,6 +4,7 @@ import android.content.ContentValues;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
@@ -25,8 +26,6 @@ public class Property implements Serializable {
         private AddressLoc addressLoc;
         private String agent;
         private String availableDate;
-        private List<String> imageUrls = new ArrayList<>();
-        private List<String> pointsOfInterest = new ArrayList<>();
         private String dateAdded;
         private String hasSchoolNearby;
         private String hasShoppingNearby;
@@ -34,10 +33,11 @@ public class Property implements Serializable {
         private Date marketDate;
         private Date soldDate;
 
+        @Ignore
         public Property() {
         }
 
-        public Property(int id, String title, String description, String price, String surface, String rooms, String bedrooms, String bathrooms, AddressLoc addressLoc, String agent, String availableDate, List<String> imageUrls, List<String> pointsOfInterest, String dateAdded, String hasSchoolNearby, String hasShoppingNearby, String status, Date marketDate, Date soldDate) {
+        public Property(int id, String title, String description, String price, String surface, String rooms, String bedrooms, String bathrooms, AddressLoc addressLoc, String agent, String availableDate, String dateAdded, String hasSchoolNearby, String hasShoppingNearby, String status, Date marketDate, Date soldDate) {
             this.id = id;
             this.title = title;
             this.description = description;
@@ -49,8 +49,6 @@ public class Property implements Serializable {
             this.addressLoc = addressLoc;
             this.agent = agent;
             this.availableDate = availableDate;
-            this.imageUrls = imageUrls;
-            this.pointsOfInterest = pointsOfInterest;
             this.dateAdded = dateAdded;
             this.hasSchoolNearby = hasSchoolNearby;
             this.hasShoppingNearby = hasShoppingNearby;
@@ -66,14 +64,6 @@ public class Property implements Serializable {
             }
 
             return property;
-        }
-
-        public List<String> getPointsOfInterest() {
-            return pointsOfInterest;
-        }
-
-        public void setPointsOfInterest(List<String> pointsOfInterest) {
-            this.pointsOfInterest = pointsOfInterest;
         }
 
         public Date getSoldDate() {
@@ -214,40 +204,6 @@ public class Property implements Serializable {
         }
 
 
-
-        public List<String> getImageUrls() {
-            return imageUrls;
-        }
-
-        public void setImageUrls(List<String> imageUrls) {
-            this.imageUrls = imageUrls;
-        }
-
-        public boolean hasSchoolNearby() {
-            return this.pointsOfInterest.contains("School");
-        }
-
-        public boolean hasShoppingNearby() {
-            return this.pointsOfInterest.contains("Shopping");
-        }
-
-        public boolean hasTransportNearby() {
-            return this.pointsOfInterest.contains("Transport");
-        }
-
-        public boolean hasPoolNearby() {
-            return this.pointsOfInterest.contains("Swimming Pool");
-        }
-
-        public void addPointOfInterest(String pointOfInterest) {
-            if (!this.pointsOfInterest.contains(pointOfInterest)) {
-                this.pointsOfInterest.add(pointOfInterest);
-            }
-        }
-
-        public void removePointOfInterest(String pointOfInterest) {
-            this.pointsOfInterest.remove(pointOfInterest);
-        }
 
 
 

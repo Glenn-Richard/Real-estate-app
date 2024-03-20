@@ -136,6 +136,8 @@
     <string name="loan_term_years">Loan Term (years)</string>
     <string name="interest_rate">Interest Rate (%)</string>
     <string name="loan_amount">Loan Amount</string>
+    <string name="ok">ok</string>
+    <string name="screen">screen</string>
 
 
 </resources>

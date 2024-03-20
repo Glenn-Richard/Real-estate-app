@@ -4,17 +4,18 @@ import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,15 +25,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.example.realestatemanager.carrousel.ImageAdapter;
+import com.example.realestatemanager.adapter.ImageAdapter;
 import com.example.realestatemanager.databinding.ActivityAddRealEstateBinding;
 import com.example.realestatemanager.models.AddressLoc;
 import com.example.realestatemanager.models.Photo;
+import com.example.realestatemanager.models.PointsOfInterest;
 import com.example.realestatemanager.models.Property;
 import com.example.realestatemanager.viewmodel.RoomViewModel;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,10 +42,12 @@ import java.util.Objects;
 @RequiresApi(api = Build.VERSION_CODES.R)
 public class AddRealEstateActivity extends AppCompatActivity{
 
+
     private final String TAG = AddRealEstateActivity.class.getName();
     private ActivityAddRealEstateBinding binding;
     private static final int REQUEST_PICK_IMAGE = 2;
     private final List<String> imageList = new ArrayList<>();
+    private final List<Photo> photoList = new ArrayList<>();
     private ImageAdapter imageAdapter;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private RoomViewModel viewModel;
@@ -193,23 +195,10 @@ public class AddRealEstateActivity extends AppCompatActivity{
                 if (data.getClipData() != null) {
                     int count = data.getClipData().getItemCount();
                     for (int i = 0; i < count; i++) {
-                        Uri imageUri = data.getClipData().getItemAt(i).getUri();
-                        try {
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-                            addImageToList(data);
-                        } catch (IOException e) {
-                            Log.e(TAG, "Error processing gallery image", e);
-                        }
+                        addImageToList(data);
                     }
                 } else if (data.getData() != null) {
-
-                    Uri imageUri = data.getData();
-                    try {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-                        addImageToList(data);
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error processing gallery image", e);
-                    }
+                    addImageToList(data);
                 }
             }
             updateRecyclerView();
@@ -217,7 +206,10 @@ public class AddRealEstateActivity extends AppCompatActivity{
     }
 
     private void addImageToList(Intent data) {
-        imageList.add(String.valueOf(data.getData()));
+        String urlToAdd = String.valueOf(data.getData());
+        imageList.add(urlToAdd);
+
+        showAddPhotoDialog(urlToAdd);
     }
 
 
@@ -271,15 +263,24 @@ public class AddRealEstateActivity extends AppCompatActivity{
         property.setStatus(status);
         property.setMarketDate(marketDate);
         property.setSoldDate(soldDate);
-        property.setPointsOfInterest(getPoi());
-        if (imageAdapter != null) {
-            property.setImageUrls(imageAdapter.getImages());
+
+        List<String> poi = getPoi();
+        for (String point:poi) {
+            PointsOfInterest pointsOfInterest = new PointsOfInterest();
+            pointsOfInterest.setType(point);
+            pointsOfInterest.setPropertyId(property.getId());
+            viewModel.insertPoi(pointsOfInterest);
         }
 
-        viewModel.insertProperty(property);
-            Log.d(TAG, "RealEstate is created: " + property.getId());
-            Utils.displayNotification(AddRealEstateActivity.this, getString(R.string.successfully_added_property));
-            finish();
+        viewModel.insertProperty(property).observe(this, id -> {
+            for(Photo photo : photoList) {
+                photo.setPropertyId(id);
+            }
+            viewModel.insertPhotos(photoList);
+        });
+
+        Utils.displayNotification(AddRealEstateActivity.this, getString(R.string.successfully_added_property));
+        finish();
     }
 
     private List<String> getPoi() {
@@ -306,6 +307,34 @@ public class AddRealEstateActivity extends AppCompatActivity{
         return "Sold".equals(status) && soldDateStr.isEmpty();// Passed all validations
     }
 
+    private void showAddPhotoDialog(final String imageUri) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_add_photo, null);
+        builder.setView(dialogView);
+
+        final EditText editTextDescription = dialogView.findViewById(R.id.editText);
+        Button buttonSubmit = dialogView.findViewById(R.id.submit);
+
+        final AlertDialog dialog = builder.create();
+
+        buttonSubmit.setOnClickListener(v -> {
+            String description = editTextDescription.getText().toString();
+            addPhotoToList(imageUri, description);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private void addPhotoToList(String imageUri, String description) {
+        Photo photo = new Photo();
+        photo.setUrl(imageUri);
+        photo.setDescription(description);
+        photoList.add(photo);
+    }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -314,5 +343,4 @@ public class AddRealEstateActivity extends AppCompatActivity{
         }
         return super.onOptionsItemSelected(item);
     }
-
 }

@@ -9,9 +9,10 @@ import androidx.room.TypeConverters;
 
 import com.example.realestatemanager.models.Converters;
 import com.example.realestatemanager.models.Photo;
+import com.example.realestatemanager.models.PointsOfInterest;
 import com.example.realestatemanager.models.Property;
 
-@Database(entities = {Property.class, Photo.class}, version = 1)
+@Database(entities = {Property.class, Photo.class, PointsOfInterest.class}, version = 1)
 @TypeConverters({Converters.class})
 public abstract class RoomDB extends RoomDatabase {
     private static RoomDB instance;
@@ -33,6 +34,10 @@ public abstract class RoomDB extends RoomDatabase {
     }
 
     public abstract PropertyDao getAllProperties();
+
+    public abstract PhotoDao getAllPhotos();
+
+    public abstract PointsOfInterestDao getAllPoi();
 
     public static void setTestInstance(RoomDB testInstance) {
         TEST_INSTANCE = testInstance;

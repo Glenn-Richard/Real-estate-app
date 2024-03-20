@@ -99,10 +99,10 @@ public class EditPropertyActivity extends AppCompatActivity {
                 if (realEstate.getMarketDate() != null) {
                     binding.editTextMarketDate.setText(formatDate(realEstate.getMarketDate()));
                 }
-                binding.checkBoxSchool.setChecked(realEstate.hasSchoolNearby());
-                binding.checkBoxShopping.setChecked(realEstate.hasShoppingNearby());
-                binding.checkBoxPublicTransport.setChecked(realEstate.hasTransportNearby());
-                binding.checkBoxPool.setChecked(realEstate.hasPoolNearby());
+               // binding.checkBoxSchool.setChecked(realEstate.hasSchoolNearby());
+                //binding.checkBoxShopping.setChecked(realEstate.hasShoppingNearby());
+                //binding.checkBoxPublicTransport.setChecked(realEstate.hasTransportNearby());
+                //binding.checkBoxPool.setChecked(realEstate.hasPoolNearby());
             }
         });
     }
@@ -172,7 +172,7 @@ public class EditPropertyActivity extends AppCompatActivity {
         if (binding.checkBoxShopping.isChecked()) poi.add(getString(R.string.shopping));
         if (binding.checkBoxPublicTransport.isChecked()) poi.add(getString(R.string.transport));
         if (binding.checkBoxPool.isChecked()) poi.add(getString(R.string.swimming_pool));
-        currentRealEstate.setPointsOfInterest(poi);
+        //currentRealEstate.setPointsOfInterest(poi);
 
         if (binding.switchSold.isChecked()) {
             currentRealEstate.setStatus(getString(R.string.sold));

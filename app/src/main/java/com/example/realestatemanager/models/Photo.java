@@ -3,15 +3,17 @@ package com.example.realestatemanager.models;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Ignore;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 
 @Entity(tableName = "photo",
+        indices = {@Index("propertyId")},
         foreignKeys = @ForeignKey(
-        entity = Property.class,
-        parentColumns = "id",
-        childColumns = "propertyId"))
+                entity = Property.class,
+                parentColumns = "id",
+                childColumns = "propertyId"))
 public class Photo implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
@@ -20,11 +22,14 @@ public class Photo implements Serializable {
     private String description;
     private long propertyId;
 
-    public Photo(String url, String description) {
+    public Photo(long id, String url, String description, long propertyId) {
+        this.id = id;
         this.url = url;
         this.description = description;
+        this.propertyId = propertyId;
     }
 
+    @Ignore
     public Photo() {
     }
 
@@ -34,10 +39,6 @@ public class Photo implements Serializable {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public void setPropertyId(long propertyId) {
-        this.propertyId = propertyId;
     }
 
     public String getUrl() {
@@ -59,8 +60,8 @@ public class Photo implements Serializable {
     public long getPropertyId() {
         return propertyId;
     }
-    @Ignore
-    public void setPropertyId(int propertyId) {
+
+    public void setPropertyId(long propertyId) {
         this.propertyId = propertyId;
     }
 }

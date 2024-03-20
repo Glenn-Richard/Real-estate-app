@@ -21,7 +21,8 @@ import com.example.realestatemanager.fragments.SearchFragment;
 
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements OnListItemSelectedListener {
+public class
+MainActivity extends AppCompatActivity implements OnListItemSelectedListener {
     public static final String EXTRA_PROPERTY_ID = "EXTRA_PROPERTY_ID";
     private int currentPropertyId = -1;
     private ActivityMainBinding binding;
@@ -211,3 +212,5 @@ public class MainActivity extends AppCompatActivity implements OnListItemSelecte
 }
 
 /*presentation: architecture, choix technique, MVVM, diffrents ecrans */
+
+/* Photo page de detail,les notifs, les points d'interet e t me nb de photos sur l'ecran filtre, design de base de données sql (pas de liste) + test network */

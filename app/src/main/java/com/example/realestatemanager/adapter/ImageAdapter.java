@@ -35,9 +35,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         String base64Image = imageList.get(position);
-        Bitmap bitmap = Utils.base64ToBitmap(base64Image);
-        if (bitmap != null) {
-            Glide.with(context).load(bitmap).into(holder.imageView);
+        if (base64Image != null) {
+            Glide.with(context).load(base64Image).into(holder.imageView);
         }
     }
 

@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -16,6 +19,10 @@ import com.example.realestatemanager.callback.OnItemClickListener;
 import com.example.realestatemanager.adapter.RealEstateAdapter;
 import com.example.realestatemanager.callback.OnListItemSelectedListener;
 import com.example.realestatemanager.databinding.FragmentListBinding;
+import com.example.realestatemanager.db.PhotoDao;
+import com.example.realestatemanager.db.PhotoDao_Impl;
+import com.example.realestatemanager.db.RoomDB;
+import com.example.realestatemanager.models.Photo;
 import com.example.realestatemanager.models.Property;
 import com.example.realestatemanager.viewmodel.RoomViewModel;
 
@@ -77,7 +84,8 @@ public class ListFragment extends Fragment implements OnItemClickListener,OnList
     }
 
     private void observeRealtyLists() {
-        roomViewModel.getAllProperties().observe(getViewLifecycleOwner(), this::observePhotosForEachRealty);
+        roomViewModel.getAllProperties().observe(getViewLifecycleOwner(),
+                this::observePhotosForEachRealty);
     }
 
     private void observePhotosForEachRealty(List<Property> properties) {
@@ -86,9 +94,14 @@ public class ListFragment extends Fragment implements OnItemClickListener,OnList
         } else {
             binding.messageText.setVisibility(View.GONE);
 
-            RealEstateAdapter adapter = new RealEstateAdapter(properties, this);
-            binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
-            binding.recyclerView.setAdapter(adapter);
+            RoomDB db = RoomDB.getInstance(getContext());
+            PhotoDao photoDao = db.getAllPhotos();
+            OnItemClickListener listener = this;
+            photoDao.getAllPhotos().observe(this, photos -> {
+                RealEstateAdapter adapter = new RealEstateAdapter(properties,photos, listener);
+                binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
+                binding.recyclerView.setAdapter(adapter);
+            });
         }
     }
 

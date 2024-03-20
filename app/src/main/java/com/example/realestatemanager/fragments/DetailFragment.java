@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -24,16 +25,19 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.realestatemanager.MainActivity;
 import com.example.realestatemanager.R;
-import com.example.realestatemanager.carrousel.ImageAdapter;
+import com.example.realestatemanager.adapter.DetailAdapter;
 import com.example.realestatemanager.databinding.FragmentDetailBinding;
+import com.example.realestatemanager.db.PhotoDao;
+import com.example.realestatemanager.db.RoomDB;
+import com.example.realestatemanager.models.Photo;
 import com.example.realestatemanager.models.Property;
 import com.example.realestatemanager.viewmodel.RoomViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class DetailFragment extends Fragment {
     private RoomViewModel roomViewModel;
@@ -106,10 +110,10 @@ public class DetailFragment extends Fragment {
             binding.propertyRooms.setText("Rooms : " + property.getRooms());
             binding.propertyBedrooms.setText("Bedrooms : " + property.getBedrooms());
             binding.propertyBathrooms.setText("Bathrooms : " + property.getBathrooms());
-            binding.schoolCheckbox.setChecked(property.hasSchoolNearby());
-            binding.shoppingCheckbox.setChecked(property.hasShoppingNearby());
-            binding.transportCheckbox.setChecked(property.hasTransportNearby());
-            binding.poolCheckbox.setChecked(property.hasPoolNearby());
+            //binding.schoolCheckbox.setChecked(property.hasSchoolNearby());
+            //binding.shoppingCheckbox.setChecked(property.hasShoppingNearby());
+            //binding.transportCheckbox.setChecked(property.hasTransportNearby());
+           // binding.poolCheckbox.setChecked(property.hasPoolNearby());
             binding.propertyTitle.setText("Title : " + property.getTitle());
             binding.propertyDescription.setText("Description : " + property.getDescription());
             binding.statusAutoCompleteTextView.setText(property.getStatus());
@@ -160,10 +164,13 @@ public class DetailFragment extends Fragment {
             }
 
             binding.propertyRooms.setText(property.getRooms());
-            List<String> imageUrls = new ArrayList<>(property.getImageUrls());
-            ImageAdapter imageAdapter = new ImageAdapter(getContext(), imageUrls);
-            binding.photosRecyclerView.setAdapter(imageAdapter);
-            binding.photosRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+            RoomDB db = RoomDB.getInstance(getContext());
+            PhotoDao photoDao = db.getAllPhotos();
+            photoDao.getAllPhotos().observe(this, photos -> {
+                DetailAdapter imageAdapter = new DetailAdapter(getContext(), photos,property);
+                binding.photosRecyclerView.setAdapter(imageAdapter);
+                binding.photosRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+            });
             binding.propertyMap.setOnClickListener(v -> {
                 if (latLng != null) {
                     String geoUri = "geo:" + latLng.latitude + "," + latLng.longitude + "?q=" + latLng.latitude + "," + latLng.longitude + "(Label)";

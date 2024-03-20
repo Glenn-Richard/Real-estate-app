@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.realestatemanager.Utils;
 import com.example.realestatemanager.databinding.ItemRealestateBinding;
+import com.example.realestatemanager.models.Photo;
 import com.example.realestatemanager.models.Property;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.List;
 
 public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdapter.ViewHolder> {
     private List<Property> realEstates = new ArrayList<>();
+    private List<Photo> photos = new ArrayList<>();
 
     @NonNull
     @Override
@@ -35,11 +37,12 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
         holder.binding.descriptionTextView.setText(property.getDescription());
         holder.binding.priceTextView.setText(String.format("$%,d", Integer.parseInt(property.getPrice())));
 
-        if (property.getImageUrls() != null && !property.getImageUrls().isEmpty()) {
-            Bitmap bitmap = Utils.base64ToBitmap(property.getImageUrls().get(0));
-            if (bitmap != null) {
-                Glide.with(holder.itemView.getContext()).load(bitmap).into(holder.binding.realEstateImageView);
-            }
+        if (!photos.isEmpty()) {
+
+            Glide.with(holder.itemView.getContext())
+                    .load(photos.get(position).getUrl())
+                    .into(holder.binding.realEstateImageView);
+
         }
     }
 
@@ -49,8 +52,9 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    public void setRealEstates(List<Property> realEstates) {
+    public void setRealEstates(List<Property> realEstates, List<Photo> photos) {
         this.realEstates = realEstates;
+        this.photos = photos;
         notifyDataSetChanged();
     }
 

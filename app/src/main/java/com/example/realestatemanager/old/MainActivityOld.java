@@ -18,9 +18,9 @@ public class MainActivityOld extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //textViewMain = findViewById(R.id.activity_second_activity_text_view_main);
-        /*  textViewMain = findViewById(R.id.activity_main_activity_text_view_main);
-         textViewQuantity = findViewById(R.id.activity_main_activity_text_view_quantity);  */
+        textViewMain = findViewById(R.id.activity_second_activity_text_view_main);
+        textViewMain = findViewById(R.id.activity_main_activity_text_view_main);
+         textViewQuantity = findViewById(R.id.activity_main_activity_text_view_quantity);
 
         configureTextViewMain();
         configureTextViewQuantity();

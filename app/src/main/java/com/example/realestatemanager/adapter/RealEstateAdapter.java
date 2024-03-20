@@ -1,19 +1,24 @@
 package com.example.realestatemanager.adapter;
 
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.net.Uri;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.realestatemanager.R;
-import com.example.realestatemanager.Utils;
 import com.example.realestatemanager.callback.OnItemClickListener;
+import com.example.realestatemanager.models.Photo;
 import com.example.realestatemanager.models.Property;
 import com.example.realestatemanager.viewholder.PropertyViewHolder;
 
@@ -21,11 +26,13 @@ import java.util.List;
 
 public class RealEstateAdapter extends RecyclerView.Adapter<PropertyViewHolder> {
     private final List<Property> properties;
+    private final List<Photo> photos;
     private final OnItemClickListener listener;
 
-    public RealEstateAdapter(List<Property> properties, OnItemClickListener listener) {
+    public RealEstateAdapter(List<Property> properties, List<Photo> photos, OnItemClickListener listener) {
         this.properties = properties;
         this.listener = listener;
+        this.photos = photos;
     }
 
     @NonNull
@@ -46,12 +53,13 @@ public class RealEstateAdapter extends RecyclerView.Adapter<PropertyViewHolder> 
         String formattedPrice = "$" + property.getPrice();
         holder.textViewPrice.setText(formattedPrice);
 
-        if (property.getImageUrls() != null && !property.getImageUrls().isEmpty()) {
-            Uri uri = Uri.parse(property.getImageUrls().get(0));
-            if (uri != null) {
-                Glide.with(holder.itemView.getContext())
-                        .load(uri)
-                        .into(holder.imageViewPropertyPhoto);
+        if (!photos.isEmpty()) {
+            for (Photo photo : photos) {
+                if(photo.getPropertyId()==property.getId()){
+                    Glide.with(holder.itemView.getContext())
+                            .load(photo.getUrl())
+                            .into(holder.imageViewPropertyPhoto);
+                }
             }
         }
 
